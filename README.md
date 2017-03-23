@@ -1,2 +1,2 @@
 # InfHonney
-a dynamic honeypot generator - based on honeyd
+A dynamic honeypot generator - based on honeyd
