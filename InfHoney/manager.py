@@ -3,6 +3,7 @@ __author__ = "ppgirl"
 class INFINITY HONEYD MANAGER
 """
 import os
+import sys
 import time
 import socket
 import cfg
@@ -20,6 +21,15 @@ class InfHoneydMan(object):
         self.config_file = cfg.HONEYD_CFG_PATH
         self.honeyd_sock = cfg.HONEYD_SOCK
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        while True:
+            try:
+                self.sock.connect(self.honeyd_sock)
+                LOG.info("* * * * * * welcome to honeyd * * * * * *\n")
+                break
+            except:
+                LOG.error("MAN ERROR when connecting to honeyd: maybe not running")
+                sys.exit(0)
+        self.sock.recv(1024)
         self._create_default_template()
 
     def add_template(self, template):
@@ -135,24 +145,13 @@ class InfHoneydMan(object):
             f.write(config_content)
 
     def _update_config(self, filepath):
-        """
-        create a socket
-        connect to the honeyd socket
-        send order
-        close the socket
-        """
-        while True:
-            try:
-                self.sock.connect(self.honeyd_sock)
-                LOG.info("* * * * * * welcome to honeyd * * * * * *\n")
-                break
-            except:
-                LOG.error("MAN ERROR when connecting to honeyd: maybe not running")
-                return "FAIL"
-        self.sock.recv(1024)
         data = "update " + filepath + "\n"
-        self.sock.send(data)
-        recv_str = self.sock.recv(1024)
+        try:
+            self.sock.send(data)
+            recv_str = self.sock.recv(1024)
+        except:
+            LOG.error("MAN ERROR: honeyd has stopped!")
+            sys.exit(0)
         return recv_str.split("\n")[0]
 
 
