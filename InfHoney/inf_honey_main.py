@@ -1,4 +1,6 @@
 import sys
+import time
+import random
 from cfg import LOG
 from manager import InfHoneydMan
 from template import Template, FileTemplate
@@ -34,11 +36,21 @@ def main():
 
         manager.add_template(windows)
         manager.add_template(ubuntu)
-        manager.add_honeypot("192.168.193.97", windows)
-        manager.add_honeypot("192.168.193.98", ubuntu)
-        manager.list_templates()
-        manager.list_honeypots()
-        manager.update_config()
+        templates = manager.template_list.values()
+        for ii in range(1, 11):
+            for jj in range(0, 10):
+                addr_4 = ii*10 + jj
+                vhost = "192.168.193." + str(addr_4)
+                t_i = random.randint(1, 2)
+                manager.add_honeypot(vhost, templates[t_i])
+            print ii
+            manager.update_config()
+            time.sleep(5)
+
+        # manager.add_honeypot("192.168.193.97", windows)
+        # manager.add_honeypot("192.168.193.98", ubuntu)
+        # manager.list_honeypots()
+        # manager.update_config()
     except KeyboardInterrupt:
         LOG.info("MAIN ERROR: keyboard interrupt, now quit")
         sys.exit(0)
